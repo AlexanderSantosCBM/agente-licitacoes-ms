@@ -12,6 +12,7 @@
   --verde:#2a9d6e;--verde-claro:#3cc48a;
   --dourado:#d4a843;--dourado-claro:#f5cc6a;
   --texto:#ddeef8;--texto-fraco:#6a9ab8;--borda-sutil:#1e3f58;
+  --perigo:#e05252;--perigo-bg:rgba(224,82,82,0.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -23,11 +24,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .pill{padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:600;}
 .pill-pca{background:rgba(212,168,67,0.15);border:1px solid rgba(212,168,67,0.3);color:var(--dourado-claro);}
 .pill-ms{background:rgba(26,111,168,0.2);border:1px solid rgba(26,111,168,0.35);color:var(--azul-brilho);}
+.pill-pdf{background:rgba(224,82,82,0.15);border:1px solid rgba(224,82,82,0.3);color:#f08080;}
 .pill-on{display:flex;align-items:center;gap:5px;background:rgba(42,157,110,0.15);border:1px solid rgba(42,157,110,0.3);color:var(--verde-claro);}
 .dot{width:6px;height:6px;background:var(--verde-claro);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .main{flex:1;display:flex;overflow:hidden;}
-.pca-panel{width:320px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--borda);display:flex;flex-direction:column;overflow:hidden;transition:width .3s;}
+.pca-panel{width:300px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--borda);display:flex;flex-direction:column;overflow:hidden;transition:width .3s;}
 .pca-panel.collapsed{width:0;border:none;overflow:hidden;}
 .pca-header{padding:12px 14px 10px;border-bottom:1px solid var(--borda);flex-shrink:0;}
 .pca-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
@@ -43,8 +45,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .stat-num.v{color:var(--verde-claro)}.stat-num.d{color:var(--dourado-claro);}
 .stat-label{font-size:9px;color:var(--texto-fraco);text-transform:uppercase;letter-spacing:.6px;margin-top:1px;}
 .pca-lista{flex:1;overflow-y:auto;padding:8px 10px;scrollbar-width:thin;scrollbar-color:var(--borda) transparent;}
-.pca-lista::-webkit-scrollbar{width:3px;}
-.pca-lista::-webkit-scrollbar-thumb{background:var(--borda);}
 .pca-loading{text-align:center;padding:24px 12px;color:var(--texto-fraco);font-size:12px;}
 .spin{display:inline-block;animation:spin 1s linear infinite;font-size:20px;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -59,7 +59,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .tc{background:rgba(26,111,168,0.15);border:1px solid rgba(26,111,168,0.25);color:var(--azul-brilho);}
 .ts-n{background:rgba(217,79,79,0.12);border:1px solid rgba(217,79,79,0.25);color:#f08080;}
 .ts-s{background:rgba(42,157,110,0.12);border:1px solid rgba(42,157,110,0.25);color:var(--verde-claro);}
-.sel-badge{position:absolute;top:6px;right:7px;font-size:12px;}
 .chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .sugestoes{background:var(--bg2);border-bottom:1px solid var(--borda);padding:7px 14px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
 .sugestoes::-webkit-scrollbar{display:none;}
@@ -67,25 +66,42 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .chip:hover{border-color:var(--azul-claro);color:var(--azul-brilho);background:rgba(26,111,168,0.1);}
 .chip-pca{border-color:rgba(212,168,67,0.3);color:rgba(212,168,67,0.8);}
 .chip-pca:hover{border-color:var(--dourado);color:var(--dourado-claro);background:rgba(212,168,67,0.07);}
+.chip-pdf{border-color:rgba(224,82,82,0.3);color:rgba(240,128,128,0.9);}
+.chip-pdf:hover{border-color:var(--perigo);color:#f08080;background:var(--perigo-bg);}
 .mensagens{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:13px;scrollbar-width:thin;scrollbar-color:var(--borda) transparent;}
-.mensagens::-webkit-scrollbar{width:3px;}
-.mensagens::-webkit-scrollbar-thumb{background:var(--borda);}
-.bv{text-align:center;padding:24px 20px;animation:fadeIn .5s ease;}
-.bv-icon{font-size:38px;margin-bottom:10px;display:block;}
-.bv h2{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:5px;}
-.bv p{font-size:12.5px;color:var(--texto-fraco);max-width:440px;margin:0 auto;line-height:1.6;}
-.bv-banners{max-width:480px;margin:12px auto 0;display:flex;flex-direction:column;gap:7px;}
-.bv-banner{border-radius:8px;padding:9px 13px;font-size:11px;text-align:left;line-height:1.6;}
+.bv{text-align:center;padding:20px 20px;animation:fadeIn .5s ease;}
+.bv-icon{font-size:36px;margin-bottom:10px;display:block;}
+.bv h2{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:5px;}
+.bv p{font-size:12px;color:var(--texto-fraco);max-width:440px;margin:0 auto;line-height:1.6;}
+.bv-banners{max-width:480px;margin:10px auto 0;display:flex;flex-direction:column;gap:6px;}
+.bv-banner{border-radius:8px;padding:8px 12px;font-size:11px;text-align:left;line-height:1.6;}
 .bv-banner-pca{background:rgba(212,168,67,0.07);border:1px solid rgba(212,168,67,0.22);color:rgba(212,168,67,0.85);}
 .bv-banner-ms{background:rgba(26,111,168,0.07);border:1px solid rgba(26,111,168,0.22);color:rgba(77,195,247,0.85);}
-.bv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:480px;margin:10px auto 0;}
-.bv-card{background:var(--bg3);border:1px solid var(--borda);border-radius:8px;padding:10px 12px;text-align:left;cursor:pointer;transition:all .2s;}
+.bv-banner-pdf{background:rgba(224,82,82,0.07);border:1px solid rgba(224,82,82,0.22);color:rgba(240,128,128,0.85);}
+.bv-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-width:480px;margin:10px auto 0;}
+.bv-card{background:var(--bg3);border:1px solid var(--borda);border-radius:8px;padding:9px 11px;text-align:left;cursor:pointer;transition:all .2s;}
 .bv-card:hover{border-color:var(--azul-claro);background:rgba(26,111,168,0.08);transform:translateY(-1px);}
 .bv-card-icon{font-size:15px;margin-bottom:3px;display:block;}
-.bv-card-titulo{font-size:11.5px;font-weight:600;color:var(--texto);}
+.bv-card-titulo{font-size:11px;font-weight:600;color:var(--texto);}
 .bv-card-desc{font-size:10px;color:var(--texto-fraco);margin-top:1px;}
 .ctx-banner{margin:8px 14px 0;background:rgba(212,168,67,0.07);border:1px solid rgba(212,168,67,0.22);border-radius:8px;padding:7px 12px;font-size:11px;color:var(--dourado-claro);display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .ctx-banner button{margin-left:auto;background:transparent;border:none;color:var(--texto-fraco);cursor:pointer;font-size:13px;}
+
+/* PDF AREA */
+.pdf-area{margin:0 14px 0;flex-shrink:0;}
+.pdf-drop{border:2px dashed var(--borda);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);margin-bottom:8px;}
+.pdf-drop:hover,.pdf-drop.drag{border-color:var(--perigo);background:var(--perigo-bg);}
+.pdf-drop p{font-size:12px;color:var(--texto-fraco);margin-top:4px;}
+.pdf-drop .icon{font-size:22px;}
+.pdf-lista{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.pdf-item{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid rgba(224,82,82,0.3);border-radius:8px;padding:5px 10px;font-size:11px;color:#f08080;}
+.pdf-item button{background:transparent;border:none;color:var(--texto-fraco);cursor:pointer;font-size:12px;padding:0 2px;}
+.pdf-item button:hover{color:var(--perigo);}
+.pdf-analisar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.btn-acao-pdf{background:transparent;border:1px solid rgba(224,82,82,0.4);color:#f08080;padding:5px 12px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-acao-pdf:hover{background:var(--perigo-bg);border-color:var(--perigo);}
+.btn-acao-pdf.active{background:var(--perigo-bg);border-color:var(--perigo);}
+
 .msg{display:flex;gap:8px;animation:fadeIn .3s ease;max-width:800px;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .msg-u{flex-direction:row-reverse;align-self:flex-end;}
@@ -99,6 +115,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .msg-balao strong{color:var(--dourado-claro);font-weight:600;}
 .msg-balao ul,.msg-balao ol{padding-left:16px;margin:6px 0;}
 .msg-balao li{margin-bottom:3px;}
+.msg-pdf-badge{display:inline-flex;align-items:center;gap:4px;background:var(--perigo-bg);border:1px solid rgba(224,82,82,0.3);border-radius:6px;padding:3px 8px;font-size:10px;color:#f08080;margin-bottom:6px;margin-right:4px;}
 .msg-tempo{font-size:9px;color:var(--texto-fraco);margin-top:3px;}
 .msg-u .msg-tempo{text-align:right;}
 .digitando{display:flex;gap:8px;align-items:center;animation:fadeIn .3s ease;}
@@ -106,31 +123,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 .dots span{width:5px;height:5px;background:var(--azul-claro);border-radius:50%;animation:bounce 1.2s infinite;}
 .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
 @keyframes bounce{0%,80%,100%{transform:scale(.65);opacity:.4}40%{transform:scale(1);opacity:1}}
-.input-area{background:var(--bg2);border-top:1px solid var(--borda);padding:11px 14px;flex-shrink:0;}
+.input-area{background:var(--bg2);border-top:1px solid var(--borda);padding:10px 14px;flex-shrink:0;}
 .input-wrap{display:flex;gap:8px;align-items:flex-end;background:var(--bg3);border:1px solid var(--borda);border-radius:12px;padding:8px 12px;transition:border-color .2s;}
 .input-wrap:focus-within{border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(26,111,168,0.12);}
 #input-msg{flex:1;background:transparent;border:none;color:var(--texto);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;max-height:100px;min-height:20px;line-height:1.5;}
 #input-msg::placeholder{color:var(--texto-fraco);}
+.btn-pdf-attach{width:32px;height:32px;background:transparent;border:1px solid rgba(224,82,82,0.3);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;flex-shrink:0;color:#f08080;}
+.btn-pdf-attach:hover{background:var(--perigo-bg);border-color:var(--perigo);}
 .btn-send{width:34px;height:34px;background:linear-gradient(135deg,var(--azul),var(--azul-brilho));border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0;}
 .btn-send:hover{transform:scale(1.05);}
 .btn-send:disabled{opacity:.35;cursor:not-allowed;transform:none;}
-.input-dica{font-size:9.5px;color:var(--texto-fraco);text-align:center;margin-top:6px;}
+.input-dica{font-size:9.5px;color:var(--texto-fraco);text-align:center;margin-top:5px;}
 .btn-toggle{background:var(--bg3);border:1px solid var(--borda);color:var(--texto-fraco);padding:4px 10px;border-radius:6px;font-size:10.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
 .btn-toggle:hover{border-color:var(--dourado);color:var(--dourado-claro);}
-@media(max-width:640px){.pca-panel{display:none;}.header-right .pill-pca{display:none;}}
+#file-input{display:none;}
+@media(max-width:640px){.pca-panel{display:none;}}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="logo">⚖️</div>
   <div class="header-info">
     <h1>Assistente de Licitações — MS</h1>
-    <p>Lei 14.133/2021 · Decretos MS · Pareceres PGE/MS · PCA PNCP · NELCA/TIC</p>
+    <p>Lei 14.133/2021 · Decretos MS · Pareceres PGE/MS · PCA PNCP · PDF</p>
   </div>
   <div class="header-right">
-    <span class="pill pill-pca">📅 PCA PNCP</span>
+    <span class="pill pill-pca">📅 PCA</span>
     <span class="pill pill-ms">🏛️ PGE/MS</span>
+    <span class="pill pill-pdf">📄 PDF</span>
     <button class="btn-toggle" onclick="togglePCA()">📋 PCA <span id="pca-txt">Ocultar</span></button>
     <span class="pill pill-on"><span class="dot"></span>Online</span>
   </div>
@@ -160,12 +180,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
   <div class="chat-area">
     <div class="sugestoes">
       <button class="chip chip-pca" onclick="enviarTexto('Com base no item do PCA selecionado, qual a modalidade indicada e documentos necessários?')">📋 Analisar item PCA</button>
-      <button class="chip chip-pca" onclick="enviarTexto('Faça o passo a passo completo para contratar o item do PCA via dispensa por valor em MS.')">✅ Dispensa MS</button>
-      <button class="chip" onclick="enviarTexto('Qual parecer referencial da PGE/MS usar para contratar um curso de capacitação?')">🏛️ PR PGE/MS capacitação</button>
-      <button class="chip" onclick="enviarTexto('Como fazer pesquisa de preços no MS segundo o Dec. 15.940/22?')">💰 Pesquisa de preços</button>
-      <button class="chip" onclick="enviarTexto('O que é necessário para aprovação da SEGOV via SIGA-TR?')">🖥️ SIGA-TR / SEGOV</button>
-      <button class="chip" onclick="enviarTexto('Como contratar equipamento de TIC com garantia on site no MS?')">💻 TIC: Garantia</button>
-      <button class="chip" onclick="enviarTexto('Quais são as regras de gestão e fiscalização de contratos no MS?')">🔍 Gestão contratos</button>
+      <button class="chip chip-pdf" onclick="abrirUpload()">📄 Enviar PDF</button>
+      <button class="chip chip-pdf" onclick="definirAcao('redteam')">🔴 Red Team do processo</button>
+      <button class="chip chip-pdf" onclick="definirAcao('revisao')">✏️ Revisar documento</button>
+      <button class="chip chip-pdf" onclick="definirAcao('checklist')">☑️ Checklist de conformidade</button>
+      <button class="chip" onclick="enviarTexto('Como fazer dispensa por valor em MS? Passo a passo.')">✅ Dispensa MS</button>
+      <button class="chip" onclick="enviarTexto('Qual parecer PGE/MS usar para contratar um curso de capacitação?')">🏛️ PR PGE/MS</button>
+      <button class="chip" onclick="enviarTexto('Como fazer pesquisa de preços no MS segundo o Dec. 15.940/22?')">💰 Pesquisa preços</button>
     </div>
 
     <div id="ctx-banner" style="display:none">
@@ -175,35 +196,57 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
       </div>
     </div>
 
+    <!-- ÁREA DE PDFs -->
+    <div class="pdf-area" id="pdf-area" style="display:none">
+      <div class="pdf-drop" id="pdf-drop"
+        onclick="document.getElementById('file-input').click()"
+        ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+        <div class="icon">📄</div>
+        <p>Clique ou arraste PDFs aqui (máx. 5 arquivos · 10MB cada)</p>
+      </div>
+      <div class="pdf-lista" id="pdf-lista"></div>
+      <div class="pdf-analisar" id="pdf-analisar" style="display:none">
+        <span style="font-size:11px;color:var(--texto-fraco);align-self:center;">Analisar como:</span>
+        <button class="btn-acao-pdf" onclick="definirAcao('redteam')" id="btn-redteam">🔴 Red Team</button>
+        <button class="btn-acao-pdf" onclick="definirAcao('revisao')" id="btn-revisao">✏️ Revisão</button>
+        <button class="btn-acao-pdf" onclick="definirAcao('checklist')" id="btn-checklist">☑️ Checklist</button>
+        <button class="btn-acao-pdf" onclick="definirAcao('resumo')" id="btn-resumo">📝 Resumo</button>
+        <button class="btn-acao-pdf" onclick="definirAcao('livre')" id="btn-livre">💬 Pergunta livre</button>
+      </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".pdf" multiple onchange="handleFiles(this.files)">
+
     <div class="mensagens" id="mensagens">
       <div class="bv" id="bv">
         <span class="bv-icon">⚖️</span>
         <h2>Assistente de Licitações — MS</h2>
-        <p>Base de conhecimento completa: PCA em tempo real, legislação MS, PGE/MS e NELCA/TIC.</p>
+        <p>Pergunte sobre licitações ou envie PDFs para análise de processos.</p>
         <div class="bv-banners">
-          <div class="bv-banner bv-banner-pca">📅 <strong>PCA integrado ao PNCP.</strong> Clique em qualquer item do PCA para análise automática de modalidade, documentos e riscos.</div>
+          <div class="bv-banner bv-banner-pca">📅 <strong>PCA integrado ao PNCP.</strong> Clique em qualquer item para análise automática.</div>
+          <div class="bv-banner bv-banner-pdf">📄 <strong>Análise de PDFs:</strong> envie ETP, TR, DFD, contratos ou processos completos para red team, revisão ou checklist de conformidade.</div>
           <div class="bv-banner bv-banner-ms">🏛️ <strong>20 Decretos MS + Pareceres PGE/MS 2022–2025 + NELCA/TIC.</strong></div>
         </div>
         <div class="bv-grid">
+          <div class="bv-card" onclick="abrirUpload(); definirAcao('redteam')">
+            <span class="bv-card-icon">🔴</span>
+            <div class="bv-card-titulo">Red Team de processo</div>
+            <div class="bv-card-desc">Envie o PDF e receba análise crítica</div>
+          </div>
+          <div class="bv-card" onclick="abrirUpload(); definirAcao('checklist')">
+            <span class="bv-card-icon">☑️</span>
+            <div class="bv-card-titulo">Checklist de conformidade</div>
+            <div class="bv-card-desc">Verificar requisitos legais MS</div>
+          </div>
           <div class="bv-card" onclick="enviarTexto('Como fazer o processo completo de pregão eletrônico em MS?')">
             <span class="bv-card-icon">🏛️</span>
             <div class="bv-card-titulo">Pregão MS</div>
             <div class="bv-card-desc">Dec. 16.118/23 e 16.160/23</div>
           </div>
-          <div class="bv-card" onclick="enviarTexto('Como funciona a dispensa por valor em MS? Passo a passo completo.')">
+          <div class="bv-card" onclick="enviarTexto('Como funciona a dispensa por valor em MS? Passo a passo.')">
             <span class="bv-card-icon">✅</span>
             <div class="bv-card-titulo">Dispensa por valor</div>
             <div class="bv-card-desc">PR 005-2025 · SDE · ME/EPP</div>
-          </div>
-          <div class="bv-card" onclick="enviarTexto('Quais pareceres referenciais da PGE/MS dispensam nova consulta jurídica?')">
-            <span class="bv-card-icon">📋</span>
-            <div class="bv-card-titulo">Pareceres PGE/MS</div>
-            <div class="bv-card-desc">2022 a 2025</div>
-          </div>
-          <div class="bv-card" onclick="enviarTexto('Como funciona o SRP no MS? Quando usar Registro de Preços?')">
-            <span class="bv-card-icon">🗂️</span>
-            <div class="bv-card-titulo">Registro de Preços</div>
-            <div class="bv-card-desc">Dec. 16.122/23</div>
           </div>
         </div>
       </div>
@@ -211,11 +254,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 
     <div class="input-area">
       <div class="input-wrap">
-        <textarea id="input-msg" placeholder="Pergunte sobre licitações, PCA, TIC, decretos MS..." rows="1"
+        <button class="btn-pdf-attach" onclick="abrirUpload()" title="Anexar PDF">📄</button>
+        <textarea id="input-msg" placeholder="Pergunte sobre licitações ou envie um PDF para análise..." rows="1"
           onkeydown="tecla(event)" oninput="resize(this)"></textarea>
         <button class="btn-send" id="btn-send" onclick="enviar()">➤</button>
       </div>
-      <div class="input-dica">Enter para enviar · Shift+Enter para nova linha</div>
+      <div class="input-dica">📄 Clique no ícone de PDF para anexar · Enter para enviar · Shift+Enter para nova linha</div>
     </div>
   </div>
 </div>
@@ -223,6 +267,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);he
 <script>
 let itensPCA=[], itensFilt=[], itemSel=null, historico=[], aguardando=false, pcaAberto=true;
 let CFG={cnpj:'03015475000140',ano:2026,seq:3};
+let pdfsAnexados=[];
+let acaoAtual='livre';
 
 async function init(){
   try{const r=await fetch('/api/config'); if(r.ok) CFG=await r.json();}catch{}
@@ -230,14 +276,15 @@ async function init(){
   carregarPCA();
 }
 
+// ── PCA ───────────────────────────────────────────────────────
 async function carregarPCA(){
   const lista=document.getElementById('pca-lista');
   document.getElementById('pca-stats').style.display='none';
-  lista.innerHTML='<div class="pca-loading"><div class="spin">⏳</div><br>Carregando PCA do PNCP...</div>';
+  lista.innerHTML='<div class="pca-loading"><div class="spin">⏳</div><br>Carregando PCA...</div>';
   try{
     const r=await fetch(`/api/pca?cnpj=${CFG.cnpj}&ano=${CFG.ano}&seq=${CFG.seq}`);
     const data=await r.json();
-    if(data.status==='erro'){lista.innerHTML=`<div class="pca-loading">⚠️ ${data.mensagem||'Erro ao carregar'}</div>`;return;}
+    if(data.status==='erro'){lista.innerHTML=`<div class="pca-loading">⚠️ ${data.mensagem||'Erro'}</div>`;return;}
     itensPCA=data.itens||[]; itensFilt=itensPCA;
     renderStats(); renderLista(itensFilt);
   }catch(e){lista.innerHTML='<div class="pca-loading">⚠️ Erro de conexão com PNCP</div>';}
@@ -260,11 +307,10 @@ function renderLista(itens){
     const desc=item.descricao||item.objetoContratacao||'Sem descrição';
     const val=parseFloat(item.valorTotal||item.valor||0);
     const vf=val>0?'R$ '+val.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
-    const cat=item.categoriaItemPca?.descricao||item.categoria||'';
+    const cat=item.categoriaItemPca?.descricao||'';
     const cont=(item.situacaoCompraItem||'').toLowerCase().includes('contrat');
     const sel=itemSel&&(itemSel._idx===idx);
     return `<div class="item-pca${sel?' sel':''}" onclick="selecionarItem(${idx})">
-      ${sel?'<span class="sel-badge">📌</span>':''}
       <div class="item-num">Item ${num}</div>
       <div class="item-desc">${desc.length>75?desc.substring(0,75)+'...':desc}</div>
       <div class="item-meta">
@@ -294,13 +340,85 @@ function selecionarItem(idx){
   const vf=val>0?' · R$'+val.toLocaleString('pt-BR',{minimumFractionDigits:2}):'';
   document.getElementById('ctx-txt').textContent=`Item ${item.numeroItem||(idx+1)}: ${desc.substring(0,50)}...${vf}`;
   document.getElementById('ctx-banner').style.display='block';
-  const prompt=`Analise este item do PCA ${CFG.ano}:\n\n**Item:** ${item.numeroItem||(idx+1)}\n**Descrição:** ${desc}\n**Valor Estimado:** ${vf||'não informado'}\n**Categoria:** ${item.categoriaItemPca?.descricao||'não informada'}\n**Situação:** ${item.situacaoCompraItem||'não informada'}\n\nOriente: 1) Modalidade indicada com fundamento legal; 2) Parecer PGE/MS aplicável e documentos; 3) Checklist de documentos obrigatórios; 4) Alertas para MS.`;
+  const prompt=`Analise este item do PCA ${CFG.ano}:\n**Item:** ${item.numeroItem||(idx+1)}\n**Descrição:** ${desc}\n**Valor:** ${vf||'não informado'}\n**Categoria:** ${item.categoriaItemPca?.descricao||'não informada'}\n**Situação:** ${item.situacaoCompraItem||'não informada'}\n\nOriente: 1) Modalidade com fundamento legal; 2) Parecer PGE/MS aplicável; 3) Checklist; 4) Alertas MS.`;
   enviarTexto(prompt);
 }
 
 function limparCtx(){itemSel=null;document.getElementById('ctx-banner').style.display='none';renderLista(itensFilt);}
 function togglePCA(){pcaAberto=!pcaAberto;document.getElementById('pca-panel').classList.toggle('collapsed',!pcaAberto);document.getElementById('pca-txt').textContent=pcaAberto?'Ocultar':'Mostrar';}
 
+// ── PDF ───────────────────────────────────────────────────────
+function abrirUpload(){
+  document.getElementById('pdf-area').style.display='block';
+  document.getElementById('file-input').click();
+}
+
+function definirAcao(acao){
+  acaoAtual=acao;
+  // Highlight botão ativo
+  ['redteam','revisao','checklist','resumo','livre'].forEach(a=>{
+    const b=document.getElementById('btn-'+a);
+    if(b) b.classList.toggle('active', a===acao);
+  });
+  // Se tem PDFs, mostra placeholder
+  if(pdfsAnexados.length>0){
+    const labels={redteam:'Red team completo',revisao:'Revisar e apontar problemas',checklist:'Checklist de conformidade',resumo:'Resumo do documento',livre:'Sua pergunta aqui...'};
+    document.getElementById('input-msg').placeholder=labels[acao]||'Sua pergunta...';
+  }
+}
+
+async function handleFiles(files){
+  if(!files.length) return;
+  document.getElementById('pdf-area').style.display='block';
+
+  const formData=new FormData();
+  Array.from(files).forEach(f=>formData.append('files',f));
+
+  try{
+    const r=await fetch('/api/upload-pdf',{method:'POST',body:formData});
+    const data=await r.json();
+
+    if(data.erros&&data.erros.length){
+      alert('Atenção:\n'+data.erros.join('\n'));
+    }
+
+    pdfsAnexados=[...pdfsAnexados,...data.pdfs];
+    renderPDFs();
+
+    if(pdfsAnexados.length>0){
+      document.getElementById('pdf-analisar').style.display='flex';
+    }
+  }catch(e){
+    alert('Erro ao fazer upload: '+e.message);
+  }
+}
+
+function renderPDFs(){
+  const lista=document.getElementById('pdf-lista');
+  lista.innerHTML=pdfsAnexados.map((pdf,i)=>`
+    <div class="pdf-item">
+      📄 ${pdf.nome} <span style="color:var(--texto-fraco)">(${pdf.tamanho})</span>
+      <button onclick="removerPDF(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removerPDF(idx){
+  pdfsAnexados.splice(idx,1);
+  renderPDFs();
+  if(pdfsAnexados.length===0){
+    document.getElementById('pdf-analisar').style.display='none';
+  }
+}
+
+function dragOver(e){e.preventDefault();document.getElementById('pdf-drop').classList.add('drag');}
+function dragLeave(){document.getElementById('pdf-drop').classList.remove('drag');}
+function dropFile(e){
+  e.preventDefault();
+  dragLeave();
+  handleFiles(e.dataTransfer.files);
+}
+
+// ── CHAT ──────────────────────────────────────────────────────
 function hora(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 function esconderBV(){const b=document.getElementById('bv');if(b)b.style.display='none';}
 
@@ -316,12 +434,18 @@ function fmt(t){
     .replace(/\n/g,'<br>');
 }
 
-function adicionarMsg(texto,tipo){
+function adicionarMsg(texto, tipo, nomesPdfs=[]){
   esconderBV();
   const c=document.getElementById('mensagens');
   const d=document.createElement('div');
   d.className=`msg msg-${tipo==='usuario'?'u':'a'}`;
-  d.innerHTML=`<div class="msg-av ${tipo==='usuario'?'av-u':'av-a'}">${tipo==='usuario'?'👤':'⚖️'}</div><div><div class="msg-balao">${fmt(texto)}</div><div class="msg-tempo">${hora()}</div></div>`;
+  let pdfBadges='';
+  if(nomesPdfs.length){
+    pdfBadges=nomesPdfs.map(n=>`<span class="msg-pdf-badge">📄 ${n}</span>`).join('');
+  }
+  d.innerHTML=`<div class="msg-av ${tipo==='usuario'?'av-u':'av-a'}">${tipo==='usuario'?'👤':'⚖️'}</div>
+    <div><div class="msg-balao">${pdfBadges}${fmt(texto)}</div>
+    <div class="msg-tempo">${hora()}</div></div>`;
   c.appendChild(d); c.scrollTop=c.scrollHeight;
 }
 
@@ -333,19 +457,64 @@ function mostrarDig(){
   d.innerHTML='<div class="msg-av av-a">⚖️</div><div class="dots"><span></span><span></span><span></span></div>';
   c.appendChild(d); c.scrollTop=c.scrollHeight;
 }
-
 function removerDig(){const d=document.getElementById('dig');if(d)d.remove();}
 
 async function enviar(){
-  if(aguardando)return;
+  if(aguardando) return;
   const inp=document.getElementById('input-msg');
-  const txt=inp.value.trim();
-  if(!txt)return;
+  let txt=inp.value.trim();
+
+  // Se há PDFs, montar prompt com ação
+  let nomesPdfs=[];
+  let msgContent=[];
+
+  if(pdfsAnexados.length>0){
+    const acaoLabel={
+      redteam:'Faça um RED TEAM completo deste(s) processo(s), identificando vulnerabilidades jurídicas classificadas em Crítico, Alto, Médio e Conforme, com base na legislação de MS.',
+      revisao:'Revise este(s) documento(s) apontando problemas, inconsistências e sugestões de melhoria com base na legislação MS.',
+      checklist:'Faça um CHECKLIST de conformidade deste(s) documento(s) verificando todos os requisitos legais aplicáveis em MS.',
+      resumo:'Faça um RESUMO executivo deste(s) documento(s), extraindo os pontos mais relevantes.',
+      livre: txt || 'Analise este documento.'
+    };
+
+    const pergunta=acaoAtual==='livre' ? (txt||'Analise este documento.') : acaoLabel[acaoAtual];
+    nomesPdfs=pdfsAnexados.map(p=>p.nome);
+
+    // Montar content com PDFs + texto
+    msgContent=[
+      ...pdfsAnexados.map(pdf=>({
+        type:'document',
+        source:{type:'base64', media_type:'application/pdf', data:pdf.base64},
+        title: pdf.nome
+      })),
+      {type:'text', text:pergunta}
+    ];
+
+    if(!txt) txt=pergunta;
+  } else {
+    if(!txt) return;
+    msgContent=[{type:'text', text:txt}];
+  }
+
   inp.value='';inp.style.height='auto';
   aguardando=true;document.getElementById('btn-send').disabled=true;
-  adicionarMsg(txt,'usuario');
-  historico.push({role:'user',content:txt});
+
+  // Mostrar mensagem do usuário
+  adicionarMsg(txt,'usuario',nomesPdfs);
+
+  // Adicionar ao histórico
+  historico.push({role:'user', content: msgContent});
+
+  // Limpar PDFs após enviar
+  if(pdfsAnexados.length>0){
+    pdfsAnexados=[];
+    renderPDFs();
+    document.getElementById('pdf-analisar').style.display='none';
+    document.getElementById('pdf-area').style.display='none';
+  }
+
   mostrarDig();
+
   try{
     const r=await fetch('/api/chat',{
       method:'POST',
@@ -354,13 +523,14 @@ async function enviar(){
     });
     const data=await r.json();
     removerDig();
-    if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);
+    if(!r.ok) throw new Error(data.error||`HTTP ${r.status}`);
     historico.push({role:'assistant',content:data.response});
     adicionarMsg(data.response,'agente');
   }catch(e){
     removerDig();
     adicionarMsg(`⚠️ Erro: ${e.message}`,'agente');
   }
+
   aguardando=false;document.getElementById('btn-send').disabled=false;
   document.getElementById('input-msg').focus();
 }
