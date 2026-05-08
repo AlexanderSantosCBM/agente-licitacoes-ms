@@ -1,29 +1,43 @@
 """
 ============================================================
-AGENTE DE LICITAÇÕES MS — Servidor Web (Flask)
+AGENTE DE LICITAÇÕES MS — Servidor Web com suporte a PDF
 ============================================================
 """
-import os, json, pathlib
+import os, json, pathlib, base64
 from flask import Flask, request, jsonify, send_from_directory
 import anthropic
 import requests as req
 
 app = Flask(__name__, static_folder="static")
 
-# ── Configuração ─────────────────────────────────────────────
-API_KEY     = os.environ.get("ANTHROPIC_API_KEY", "")
-MODEL       = "claude-sonnet-4-5"
-MAX_TOKENS  = 1024
-ORGAO_CNPJ  = os.environ.get("ORGAO_CNPJ", "03015475000140")
-PCA_ANO     = int(os.environ.get("PCA_ANO", "2026"))
-PCA_SEQ     = int(os.environ.get("PCA_SEQ", "3"))
-PNCP_BASE   = "https://pncp.gov.br/api/consulta/v1"
+API_KEY    = os.environ.get("ANTHROPIC_API_KEY", "")
+MODEL      = "claude-sonnet-4-5"
+MAX_TOKENS = 2048
+ORGAO_CNPJ = os.environ.get("ORGAO_CNPJ", "03015475000140")
+PCA_ANO    = int(os.environ.get("PCA_ANO", "2026"))
+PCA_SEQ    = int(os.environ.get("PCA_SEQ", "3"))
+PNCP_BASE  = "https://pncp.gov.br/api/consulta/v1"
+MAX_PDF_MB = 10
+MAX_PDFS   = 5
 
-# Carrega system prompt do arquivo
 SP_PATH = pathlib.Path(__file__).parent / "system_prompt.txt"
 SYSTEM_PROMPT = SP_PATH.read_text(encoding="utf-8") if SP_PATH.exists() else ""
+SYSTEM_PROMPT += """
 
-# ── Definição das tools ───────────────────────────────────────
+══ CAPACIDADE DE ANÁLISE DE PDFs ══
+Quando o usuário enviar um ou mais PDFs, você deve:
+1. IDENTIFICAR o tipo de documento: ETP, TR, DFD, Contrato, Parecer, Edital, Processo completo, etc.
+2. ANALISAR o conteúdo à luz da legislação MS aplicável.
+3. RESPONDER conforme o pedido:
+   - RED TEAM: vulnerabilidades jurídicas em Crítico/Alto/Médio/Conforme
+   - REVISÃO: problemas e correções sugeridas
+   - RESUMO: pontos principais extraídos
+   - CHECKLIST: conformidade com requisitos legais MS
+4. Para MÚLTIPLOS PDFs: analisar cada um e verificar coerência entre eles
+   (ex: se ETP, TR e DFD são consistentes entre si)
+5. Sempre citar artigos, decretos e pareceres PGE/MS aplicáveis.
+"""
+
 TOOLS = [
     {
         "name": "buscar_pca_pncp",
@@ -33,30 +47,29 @@ TOOLS = [
             "properties": {
                 "cnpj":      {"type": "string",  "description": "CNPJ sem pontos/traços"},
                 "ano":       {"type": "integer", "description": "Ano do PCA"},
-                "sequencia": {"type": "integer", "description": "Sequência do PCA no PNCP"},
-                "pagina":    {"type": "integer", "description": "Página (padrão 1)", "default": 1}
+                "sequencia": {"type": "integer", "description": "Sequência do PCA"},
+                "pagina":    {"type": "integer", "description": "Página", "default": 1}
             },
             "required": ["cnpj", "ano", "sequencia"]
         }
     },
     {
         "name": "buscar_contratacoes_pncp",
-        "description": "Busca contratações no PNCP por palavras-chave — útil para pesquisa de preços.",
+        "description": "Busca contratações no PNCP por palavras-chave.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "termo":         {"type": "string",  "description": "Termo de busca"},
-                "data_inicial":  {"type": "string",  "description": "Data inicial YYYYMMDD"},
-                "data_final":    {"type": "string",  "description": "Data final YYYYMMDD"},
-                "modalidade":    {"type": "integer", "description": "6=Pregão 8=Inexig 9=Dispensa"},
-                "pagina":        {"type": "integer", "description": "Página (padrão 1)", "default": 1}
+                "termo":        {"type": "string",  "description": "Termo de busca"},
+                "data_inicial": {"type": "string",  "description": "Data inicial YYYYMMDD"},
+                "data_final":   {"type": "string",  "description": "Data final YYYYMMDD"},
+                "modalidade":   {"type": "integer", "description": "6=Pregão 8=Inexig 9=Dispensa"},
+                "pagina":       {"type": "integer", "description": "Página", "default": 1}
             },
             "required": ["termo"]
         }
     }
 ]
 
-# ── Implementação das tools ───────────────────────────────────
 def buscar_pca_pncp(cnpj, ano, sequencia, pagina=1):
     url = f"{PNCP_BASE}/orgaos/{cnpj}/planos-contratacao/{ano}/{sequencia}/itens"
     try:
@@ -90,7 +103,6 @@ TOOL_MAP = {
     "buscar_contratacoes_pncp": buscar_contratacoes_pncp,
 }
 
-# ── Rotas ─────────────────────────────────────────────────────
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
@@ -102,7 +114,7 @@ def config():
 @app.route("/api/chat", methods=["POST"])
 def chat():
     if not API_KEY:
-        return jsonify({"error": "API Key não configurada. Defina ANTHROPIC_API_KEY no .env"}), 500
+        return jsonify({"error": "API Key não configurada."}), 500
 
     data     = request.get_json()
     messages = data.get("messages", [])
@@ -114,7 +126,6 @@ def chat():
         client = anthropic.Anthropic(api_key=API_KEY)
         msgs   = list(messages)
 
-        # Agentic loop — continua enquanto houver tool_use
         while True:
             response = client.messages.create(
                 model=MODEL,
@@ -127,7 +138,6 @@ def chat():
             tool_uses = [b for b in response.content if b.type == "tool_use"]
 
             if tool_uses:
-                # Converte content para formato serializável
                 content_serial = []
                 for b in response.content:
                     if b.type == "text":
@@ -138,8 +148,6 @@ def chat():
                             "name": b.name, "input": b.input
                         })
                 msgs.append({"role": "assistant", "content": content_serial})
-
-                # Executar tools
                 resultados = []
                 for tu in tool_uses:
                     fn     = TOOL_MAP.get(tu.name)
@@ -152,7 +160,6 @@ def chat():
                 msgs.append({"role": "user", "content": resultados})
                 continue
 
-            # Resposta final
             texto = " ".join(b.text for b in response.content if hasattr(b, "text"))
             return jsonify({"response": texto})
 
@@ -160,6 +167,32 @@ def chat():
         return jsonify({"error": "API Key inválida"}), 401
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/upload-pdf", methods=["POST"])
+def upload_pdf():
+    if "files" not in request.files:
+        return jsonify({"error": "Nenhum arquivo enviado"}), 400
+
+    files = request.files.getlist("files")
+    pdfs  = []
+    erros = []
+
+    if len(files) > MAX_PDFS:
+        return jsonify({"error": f"Máximo de {MAX_PDFS} PDFs por vez."}), 400
+
+    for f in files:
+        if not f.filename.lower().endswith(".pdf"):
+            erros.append(f"{f.filename}: não é um PDF")
+            continue
+        conteudo   = f.read()
+        tamanho_mb = len(conteudo) / (1024 * 1024)
+        if tamanho_mb > MAX_PDF_MB:
+            erros.append(f"{f.filename}: muito grande ({tamanho_mb:.1f}MB, máx {MAX_PDF_MB}MB)")
+            continue
+        b64 = base64.standard_b64encode(conteudo).decode("utf-8")
+        pdfs.append({"nome": f.filename, "tamanho": f"{tamanho_mb:.1f}MB", "base64": b64})
+
+    return jsonify({"pdfs": pdfs, "erros": erros, "total": len(pdfs)})
 
 @app.route("/api/pca")
 def pca():
