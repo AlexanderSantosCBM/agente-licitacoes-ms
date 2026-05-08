@@ -202,6 +202,18 @@ def pca():
     pag  = int(request.args.get("pag",  1))
     return jsonify(buscar_pca_pncp(cnpj, ano, seq, pag))
 
+
+@app.route("/api/verificar-senha", methods=["POST"])
+def verificar_senha():
+    """Verifica a senha mestra de acesso ao sistema."""
+    senha_correta = os.environ.get("SENHA_ACESSO", "suplantec2025")
+    data = request.get_json()
+    senha_digitada = data.get("senha", "")
+    return jsonify({"ok": senha_digitada == senha_correta})
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
+# Rota verificação de senha (adicionada ao final)
+# Esta rota já está no app.py principal — garantir que exista
