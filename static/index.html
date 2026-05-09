@@ -217,6 +217,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
         <button class="chip chip-pdf" id="c3">🔴 Red Team</button>
         <button class="chip chip-pdf" id="c4">✏️ Revisão</button>
         <button class="chip chip-pdf" id="c5">☑️ Checklist</button>
+        <a href="/pesquisa-precos" class="chip" style="text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:4px;background:rgba(42,157,110,0.08);border-color:rgba(42,157,110,0.3);color:var(--verde);">🔍 Pesquisa de Preços</a>
+        <a href="/modelos" class="chip" style="text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:4px;background:rgba(212,168,67,0.08);border-color:rgba(212,168,67,0.3);color:var(--dourado);">📚 Processos Modelo</a>
         <button class="chip" id="c6">✅ Dispensa MS</button>
         <button class="chip" id="c7">🏛️ PR PGE/MS</button>
         <button class="chip" id="c8">💰 Pesquisa preços</button>
@@ -264,6 +266,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
             <div class="bv-card" id="bv2"><span class="bv-card-icon">☑️</span><div class="bv-card-titulo">Checklist</div><div class="bv-card-desc">Conformidade legal MS</div></div>
             <div class="bv-card" id="bv3"><span class="bv-card-icon">✅</span><div class="bv-card-titulo">Dispensa por valor</div><div class="bv-card-desc">PR 005-2025 · SDE</div></div>
             <div class="bv-card" id="bv4"><span class="bv-card-icon">📋</span><div class="bv-card-titulo">Pareceres PGE/MS</div><div class="bv-card-desc">Referenciais 2022–2025</div></div>
+            <a href="/pesquisa-precos" style="text-decoration:none" class="bv-card"><span class="bv-card-icon">🔍</span><div class="bv-card-titulo" style="color:var(--verde)">Pesquisa de Preços</div><div class="bv-card-desc">Automática · 3 fontes · Excel</div></a>
+            <a href="/modelos" style="text-decoration:none" class="bv-card"><span class="bv-card-icon">📚</span><div class="bv-card-titulo" style="color:var(--dourado)">Processos Modelo</div><div class="bv-card-desc">5 tipos · Word · Checklist</div></a>
           </div>
         </div>
       </div>
@@ -310,6 +314,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
     .then(function(d) {
       if (d.ok) {
         sessionStorage.setItem('auth', 'ok');
+        sessionStorage.setItem('session_token', d.token || '');
         g('tela-login').style.display = 'none';
         g('app').style.display = 'flex';
         iniciar();
@@ -344,7 +349,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
 
   // ── PCA ──
   function iniciar() {
-    fetch('/api/config')
+    authFetch('/api/config')
       .then(function(r) { return r.ok ? r.json() : CFG; })
       .then(function(d) { CFG = d; g('pca-titulo').textContent = 'PCA ' + CFG.ano; carregarPCA(); })
       .catch(function() { carregarPCA(); });
@@ -354,7 +359,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
     var l = g('pca-lista');
     g('pca-stats').style.display = 'none';
     l.innerHTML = '<div class="pca-loading"><div class="spin">⏳</div><br>Carregando...</div>';
-    fetch('/api/pca?cnpj=' + CFG.cnpj + '&ano=' + CFG.ano + '&seq=' + CFG.seq)
+    authFetch('/api/pca?cnpj=' + CFG.cnpj + '&ano=' + CFG.ano + '&seq=' + CFG.seq)
       .then(function(r) { return r.json(); })
       .then(function(d) {
         if (d.status === 'erro') { l.innerHTML = '<div class="pca-loading">⚠️ Erro PNCP</div>'; return; }
@@ -460,7 +465,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
     g('pdf-area').style.display = 'block';
     var fd = new FormData();
     Array.from(files).forEach(function(f) { fd.append('files', f); });
-    fetch('/api/upload-pdf', { method: 'POST', body: fd })
+    authFetch('/api/upload-pdf', { method: 'POST', body: fd })
       .then(function(r) { return r.json(); })
       .then(function(d) {
         if (d.erros && d.erros.length) alert('Atenção:\n' + d.erros.join('\n'));
@@ -573,7 +578,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);mi
 
     showDig();
 
-    fetch('/api/chat', {
+    authFetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: HIST })
