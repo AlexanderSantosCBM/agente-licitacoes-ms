@@ -800,16 +800,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
     var inp = g('input-msg');
     var t = inp.value.trim();
-    var nomes = [], content = [], temPDF = false;
+    var nomes = [], content = [];
 
     if (PDFS.length) {
-      // Limite de segurança: verificar tamanho total estimado dos PDFs
-      var totalBase64 = PDFS.reduce(function(s,p) { return s + (p.base64||'').length; }, 0);
-      if (totalBase64 > 15 * 1024 * 1024) { // ~15MB base64 ≈ ~11MB real
-        addMsg('⚠️ Os PDFs selecionados são muito grandes juntos (limite ~10MB). Tente enviar um PDF por vez ou reduza o tamanho dos arquivos.', 'a');
-        return;
-      }
-
       var labels = {
         redteam: 'Faça um RED TEAM completo identificando vulnerabilidades jurídicas em Crítico, Alto, Médio e Conforme com base na legislação MS.',
         revisao: 'Revise este documento apontando problemas e sugestões com base na legislação MS.',
@@ -824,7 +817,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       });
       content.push({ type:'text', text:perg });
       if (!t) t = perg;
-      temPDF = true;
     } else {
       if (!t) return;
       content = [{ type:'text', text:t }];
@@ -833,20 +825,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     inp.value = ''; inp.style.height = 'auto';
     AGUARD = true; g('btn-send').disabled = true;
     addMsg(t, 'u', nomes);
-
-    // Adiciona ao HIST: para mensagens com PDF, guarda versão enxuta no histórico
-    // (sem os base64) para não estourar o payload nas próximas mensagens
-    if (temPDF) {
-      var contentEnxuto = nomes.map(function(n) {
-        return { type:'text', text:'[Documento PDF: ' + n + ']' };
-      });
-      contentEnxuto.push({ type:'text', text:t });
-      HIST.push({ role:'user', content:content });          // versão completa para envio atual
-      var idxMsgAtual = HIST.length - 1;                    // índice para substituir após resposta
-    } else {
-      HIST.push({ role:'user', content:content });
-      var idxMsgAtual = -1;
-    }
+    HIST.push({ role:'user', content:content });
 
     // Salvar no histórico local
     if (HIST.length === 1) salvarHistorico(OPCAO_ATUAL, t.substring(0,60));
@@ -860,9 +839,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       g('pdf-acoes').style.display = 'none';
     }
 
-    // Capturar nomes para closure
-    var nomesEnxutos = nomes.slice();
-
     showDig();
     authFetch('/api/chat', {
       method: 'POST',
@@ -872,30 +848,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     .then(function(r) { return r.json().then(function(d) { return { ok:r.ok, d:d }; }); })
     .then(function(res) {
       hideDig();
-      if (!res.ok) throw new Error(res.d.error || 'Erro HTTP ' + (res.d.detail || ''));
-
-      // Após receber a resposta, substituir a mensagem com PDF por versão enxuta no HIST
-      // Isso evita que os base64 fiquem acumulando nas próximas requisições
-      if (idxMsgAtual >= 0 && nomesEnxutos.length) {
-        var enxuto = nomesEnxutos.map(function(n) {
-          return { type:'text', text:'[Documento PDF: ' + n + ' — já analisado acima]' };
-        });
-        enxuto.push({ type:'text', text:t });
-        HIST[idxMsgAtual] = { role:'user', content:enxuto };
-      }
-
+      if (!res.ok) throw new Error(res.d.error || 'Erro HTTP');
       HIST.push({ role:'assistant', content:res.d.response });
       addMsg(res.d.response, 'a');
     })
-    .catch(function(e) {
-      hideDig();
-      var msg = e.message || 'Erro desconhecido';
-      if (msg.indexOf('413') >= 0 || msg.indexOf('too large') >= 0 || msg.indexOf('payload') >= 0) {
-        addMsg('⚠️ Os PDFs enviados são muito grandes para processar juntos. Tente enviar um PDF por vez.', 'a');
-      } else {
-        addMsg('⚠️ ' + msg, 'a');
-      }
-    })
+    .catch(function(e) { hideDig(); addMsg('⚠️ ' + e.message, 'a'); })
     .finally(function() {
       AGUARD = false; g('btn-send').disabled = false; g('input-msg').focus();
     });
@@ -904,6 +861,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   g('btn-send').onclick = enviar;
   g('input-msg').onkeydown = function(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviar();} };
   g('input-msg').oninput = function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; };
+
+  // Expor funções chamadas via onclick inline no HTML ao escopo global
+  window.selecionarOpcao = selecionarOpcao;
+  window.voltarInicio    = voltarInicio;
+  window.setAcao         = setAcao;
+  window.limparPcaCtx    = limparPcaCtx;
 
 })();
 </script>
