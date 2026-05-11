@@ -861,7 +861,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   g('btn-send').onclick = enviar;
   g('input-msg').onkeydown = function(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();enviar();} };
   g('input-msg').oninput = function() { this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,100)+'px'; };
+// Expor funções globais chamadas pelo HTML
+  window.selecionarOpcao = selecionarOpcao;
+  window.voltarInicio    = voltarInicio;
+  window.setAcao         = setAcao;
+  window.limparPcaCtx    = limparPcaCtx;
 
+})();
 })();
 </script>
 </body>
