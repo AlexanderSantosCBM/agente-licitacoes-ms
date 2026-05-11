@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisa de Preços — SUPLANTEC/SEJUSP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+:root{
+  --azul:#0D3B8C;--azul-m:#1a5fb4;--azul-c:#4dc3f7;
+  --bg:#07152b;--bg2:#0c2040;--bg3:#112850;--borda:#1a3a6b;
+  --dourado:#f5cc6a;--verde:#3cc48a;
+  --texto:#ddeef8;--texto-fraco:#6a9ab8;
+  --perigo:#e05252;--perigo-bg:rgba(224,82,82,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--texto);min-height:100vh;}
+.header{background:var(--bg2);border-bottom:1px solid var(--borda);padding:12px 24px;display:flex;align-items:center;gap:12px;}
+.header-logo{width:42px;height:42px;object-fit:contain;border-radius:50%;border:2px solid var(--borda);background:white;padding:2px;}
+.header-info h1{font-family:'DM Serif Display',serif;font-size:16px;}
+.header-info p{font-size:10px;color:var(--texto-fraco);margin-top:1px;}
+.btn-voltar{margin-left:auto;background:transparent;border:1px solid var(--borda);color:var(--texto-fraco);padding:6px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:flex;align-items:center;gap:5px;}
+.btn-voltar:hover{border-color:var(--azul-c);color:var(--azul-c);}
+.container{max-width:860px;margin:40px auto;padding:0 24px;}
+.card{background:var(--bg2);border:1px solid var(--borda);border-radius:16px;padding:32px;margin-bottom:24px;}
+.card-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.card-desc{font-size:12.5px;color:var(--texto-fraco);line-height:1.6;margin-bottom:24px;}
+.drop-zone{border:2px dashed var(--borda);border-radius:12px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--azul-c);background:rgba(26,95,180,0.08);}
+.drop-zone .icon{font-size:40px;margin-bottom:12px;display:block;}
+.drop-zone h3{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:6px;}
+.drop-zone p{font-size:12px;color:var(--texto-fraco);}
+.btn-upload{display:inline-block;margin-top:14px;background:linear-gradient(135deg,var(--azul),var(--azul-m));border:none;border-radius:8px;color:white;padding:10px 24px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;}
+.btn-upload:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,59,140,0.4);}
+.arquivo-selecionado{display:none;margin-top:16px;background:rgba(77,195,247,0.08);border:1px solid rgba(77,195,247,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.arquivo-selecionado.show{display:flex;}
+.arquivo-nome{font-size:13px;font-weight:500;color:var(--azul-c);flex:1;}
+.arquivo-tam{font-size:11px;color:var(--texto-fraco);}
+.btn-remover{background:transparent;border:none;color:var(--texto-fraco);cursor:pointer;font-size:14px;}
+.fontes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
+.fonte-card{background:var(--bg3);border:1px solid var(--borda);border-radius:10px;padding:14px;text-align:center;}
+.fonte-icon{font-size:22px;display:block;margin-bottom:6px;}
+.fonte-nome{font-size:11px;font-weight:600;color:var(--texto);}
+.fonte-desc{font-size:10px;color:var(--texto-fraco);margin-top:3px;line-height:1.4;}
+.fonte-badge{display:inline-block;margin-top:6px;font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.badge-ativa{background:rgba(42,157,110,0.15);border:1px solid rgba(42,157,110,0.3);color:var(--verde);}
+.badge-hist{background:rgba(212,168,67,0.15);border:1px solid rgba(212,168,67,0.3);color:var(--dourado);}
+.btn-pesquisar{width:100%;background:linear-gradient(135deg,var(--azul),var(--azul-m));border:none;border-radius:12px;color:white;padding:15px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-pesquisar:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,59,140,0.4);}
+.btn-pesquisar:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.loading{display:none;text-align:center;padding:40px 20px;}
+.loading.show{display:block;}
+.loading-icon{font-size:40px;animation:spin 1.5s linear infinite;display:inline-block;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading h3{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:8px;}
+.loading-steps{list-style:none;margin-top:16px;text-align:left;max-width:320px;margin-left:auto;margin-right:auto;}
+.loading-steps li{font-size:12px;color:var(--texto-fraco);padding:5px 0;display:flex;align-items:center;gap:8px;}
+.loading-steps li.done{color:var(--verde);}
+.loading-steps li.active{color:var(--azul-c);font-weight:500;}
+.step-icon{font-size:14px;width:20px;text-align:center;}
+.resultado{display:none;margin-top:0;}
+.resultado.show{display:block;}
+.resultado-header{background:rgba(42,157,110,0.08);border:1px solid rgba(42,157,110,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
+.resultado-icon{font-size:36px;}
+.resultado-info h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--verde);}
+.resultado-info p{font-size:12px;color:var(--texto-fraco);margin-top:3px;}
+.btn-download{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--verde),#1a7a50);border:none;border-radius:10px;color:white;padding:12px 24px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;margin-top:12px;transition:all .2s;}
+.btn-download:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(42,157,110,0.4);}
+.btn-nova{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--borda);border-radius:10px;color:var(--texto-fraco);padding:12px 24px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:12px;margin-left:10px;transition:all .2s;}
+.btn-nova:hover{border-color:var(--azul-c);color:var(--azul-c);}
+.erro-box{display:none;background:var(--perigo-bg);border:1px solid rgba(224,82,82,0.3);border-radius:10px;padding:16px 20px;margin-top:16px;}
+.erro-box.show{display:block;}
+.erro-box p{font-size:12.5px;color:#f08080;line-height:1.6;}
+.info-box{background:rgba(212,168,67,0.07);border:1px solid rgba(212,168,67,0.22);border-radius:10px;padding:14px 18px;font-size:11.5px;color:rgba(212,168,67,0.85);line-height:1.7;}
+.btn-add-cotacao{background:transparent;border:1px solid rgba(77,195,247,0.3);color:var(--azul-c);padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-add-cotacao:hover{background:rgba(77,195,247,0.08);border-color:var(--azul-c);}
+.cotacao-row{display:grid;grid-template-columns:2fr 2.5fr 1.5fr 1.5fr 36px;gap:8px;align-items:center;margin-bottom:8px;animation:fadeUp .2s ease;}
+.cotacao-row input{background:var(--bg3);border:1px solid var(--borda);color:var(--texto);padding:8px 10px;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;width:100%;}
+.cotacao-row input:focus{border-color:var(--azul-c);}
+.cotacao-row input::placeholder{color:var(--texto-fraco);}
+.cotacao-row input[type=number]{-moz-appearance:textfield;}
+.cotacao-row input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
+.btn-del-cotacao{width:32px;height:32px;background:transparent;border:1px solid rgba(224,82,82,0.3);color:var(--texto-fraco);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0;}
+.btn-del-cotacao:hover{background:var(--perigo-bg);border-color:var(--perigo);color:#f08080;}
+.cotacao-header{display:grid;grid-template-columns:2fr 2.5fr 1.5fr 1.5fr 36px;gap:8px;margin-bottom:6px;}
+.cotacao-header span{font-size:10px;color:var(--texto-fraco);text-transform:uppercase;letter-spacing:.6px;padding:0 2px;}
+.cotacoes-vazio{text-align:center;padding:14px;font-size:11.5px;color:var(--texto-fraco);background:var(--bg3);border-radius:8px;border:1px dashed var(--borda);}
+
+.rodape strong{color:var(--dourado);}
+#file-input{display:none;}
+@media(max-width:600px){.fontes{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="/logo.png" class="header-logo" alt="SUPLANTEC">
+  <div class="header-info">
+    <h1>Pesquisa de Preços Automática</h1>
+    <p>SUPLANTEC · SEJUSP/MS · Dec. Estadual MS 15.940/2022</p>
+  </div>
+  <a href="/" class="btn-voltar">← Voltar ao Chat</a>
+</div>
+
+<div class="container">
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card" id="card-upload">
+    <div class="card-title">🔍 Pesquisa de Preços Automática</div>
+    <p class="card-desc">
+      Envie o PDF do seu Termo de Referência. O sistema irá extrair automaticamente o objeto da contratação,
+      pesquisar em todas as fontes públicas disponíveis e gerar uma planilha Excel completa com análise
+      estatística — pronta para juntar ao processo conforme o Dec. Estadual MS 15.940/2022.
+    </p>
+
+    <!-- Fontes -->
+    <div class="fontes">
+      <div class="fonte-card">
+        <span class="fonte-icon">🏛️</span>
+        <div class="fonte-nome">PNCP</div>
+        <div class="fonte-desc">Portal Nacional de Contratações Públicas — contratações 2024/2026</div>
+        <span class="fonte-badge badge-ativa">✓ Ativa</span>
+      </div>
+      <div class="fonte-card">
+        <span class="fonte-icon">🛒</span>
+        <div class="fonte-nome">Compras.gov.br</div>
+        <div class="fonte-desc">API de dados abertos — licitações homologadas</div>
+        <span class="fonte-badge badge-ativa">✓ Ativa</span>
+      </div>
+      <div class="fonte-card">
+        <span class="fonte-icon">📊</span>
+        <div class="fonte-nome">Painel de Preços</div>
+        <div class="fonte-desc">MGI — histórico de preços praticados</div>
+        <span class="fonte-badge badge-hist">Até jul/2025</span>
+      </div>
+    </div>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="drop-zone">
+      <span class="icon">📄</span>
+      <h3>Envie o Termo de Referência (PDF)</h3>
+      <p>Arraste o arquivo aqui ou clique para selecionar</p>
+      <button class="btn-upload" onclick="document.getElementById('file-input').click()">
+        Selecionar PDF
+      </button>
+    </div>
+
+    <div class="arquivo-selecionado" id="arquivo-selecionado">
+      <span style="font-size:20px">📄</span>
+      <span class="arquivo-nome" id="arquivo-nome">arquivo.pdf</span>
+      <span class="arquivo-tam" id="arquivo-tam">0 MB</span>
+      <button class="btn-remover" onclick="removerArquivo()">✕</button>
+    </div>
+
+    <div class="erro-box" id="erro-box">
+      <p id="erro-msg">Erro ao processar o arquivo.</p>
+    </div>
+
+    <!-- COTAÇÕES MANUAIS -->
+    <div style="margin-top:24px;border-top:1px solid var(--borda);padding-top:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--texto)">📝 Cotações Manuais <span style="font-size:10px;font-weight:400;color:var(--texto-fraco)">(opcional)</span></div>
+          <div style="font-size:11px;color:var(--texto-fraco);margin-top:2px">Adicione cotações obtidas por telefone, e-mail ou outros portais</div>
+        </div>
+        <button class="btn-add-cotacao" onclick="adicionarCotacao()">+ Adicionar cotação</button>
+      </div>
+      <div id="cotacoes-lista"></div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="info-box" style="margin-bottom:16px">
+        📌 <strong>Como funciona:</strong> O agente lê o TR, identifica o objeto e termos de busca, pesquisa nas 3 fontes públicas, incorpora as cotações manuais e gera a planilha completa conforme o Dec. 15.940/22.
+      </div>
+      <button class="btn-pesquisar" id="btn-pesquisar" onclick="iniciarPesquisa()" disabled>
+        🔍 Iniciar Pesquisa de Preços
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="card loading" id="card-loading">
+    <div style="text-align:center">
+      <div class="loading-icon">⏳</div>
+      <h3>Pesquisando preços...</h3>
+      <p style="font-size:12px;color:var(--texto-fraco);margin-top:6px">Isso pode levar até 60 segundos</p>
+      <ul class="loading-steps">
+        <li id="step1"><span class="step-icon">📄</span> Lendo o Termo de Referência</li>
+        <li id="step2"><span class="step-icon">🤖</span> Extraindo objeto e termos de busca</li>
+        <li id="step3"><span class="step-icon">🏛️</span> Pesquisando no PNCP</li>
+        <li id="step4"><span class="step-icon">🛒</span> Pesquisando no Compras.gov.br</li>
+        <li id="step5"><span class="step-icon">📊</span> Pesquisando no Painel de Preços</li>
+        <li id="step6"><span class="step-icon">📋</span> Gerando planilha Excel</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="card resultado" id="card-resultado">
+    <div class="resultado-header">
+      <div class="resultado-icon">✅</div>
+      <div class="resultado-info">
+        <h3>Pesquisa concluída com sucesso!</h3>
+        <p id="resultado-desc">Planilha gerada com análise estatística completa.</p>
+      </div>
+    </div>
+    <p style="font-size:13px;line-height:1.7;color:var(--texto-fraco);margin-bottom:8px">
+      A planilha Excel contém 4 abas: <strong style="color:var(--texto)">Capa</strong> (objeto e dados do TR),
+      <strong style="color:var(--texto)">Resultados Coletados</strong> (todos os registros encontrados),
+      <strong style="color:var(--texto)">Análise Estatística</strong> (média, mediana, menor preço por fonte)
+      e <strong style="color:var(--texto)">Metodologia</strong> (base legal e fontes consultadas).
+    </p>
+    <div>
+      <a id="btn-download" class="btn-download" href="#" download>
+        📥 Baixar Planilha Excel
+      </a>
+      <button class="btn-nova" onclick="novaPesquisa()">
+        🔄 Nova Pesquisa
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="rodape">
+  Desenvolvido por <strong>Alexander Santos</strong> · SUPLANTEC · SEJUSP/MS · Governo de Mato Grosso do Sul<br>
+  Base legal: Dec. Estadual MS nº 15.940/2022 · Lei 14.133/2021
+</div>
+
+<input type="file" id="file-input" accept=".pdf">
+
+<script>
+var cotacoes = [];
+var cotacaoId = 0;
+
+function adicionarCotacao() {
+  var lista = document.getElementById('cotacoes-lista');
+
+  // Mostrar cabeçalho na primeira vez
+  if (cotacoes.length === 0) {
+    lista.innerHTML = '<div class="cotacao-header"><span>Fornecedor / Fonte</span><span>Descrição</span><span>Valor (R$)</span><span>Data</span><span></span></div><div id="cotacao-rows"></div>';
+  }
+
+  var id = ++cotacaoId;
+  cotacoes.push(id);
+
+  var row = document.createElement('div');
+  row.className = 'cotacao-row';
+  row.id = 'cotacao-' + id;
+  row.innerHTML =
+    '<input type="text" placeholder="Ex: Empresa XYZ / telefone" id="c-fonte-' + id + '">' +
+    '<input type="text" placeholder="Ex: Imersão CNV 30 servidores" id="c-desc-' + id + '">' +
+    '<input type="number" placeholder="0,00" step="0.01" min="0" id="c-valor-' + id + '">' +
+    '<input type="date" id="c-data-' + id + '" value="' + new Date().toISOString().split('T')[0] + '">' +
+    '<button class="btn-del-cotacao" onclick="removerCotacao(' + id + ')">✕</button>';
+
+  document.getElementById('cotacao-rows').appendChild(row);
+}
+
+function removerCotacao(id) {
+  cotacoes = cotacoes.filter(function(c) { return c !== id; });
+  var el = document.getElementById('cotacao-' + id);
+  if (el) el.remove();
+  if (cotacoes.length === 0) {
+    document.getElementById('cotacoes-lista').innerHTML = '';
+  }
+}
+
+function coletarCotacoesManuais() {
+  var resultado = [];
+  cotacoes.forEach(function(id) {
+    var fonte = document.getElementById('c-fonte-' + id);
+    var desc  = document.getElementById('c-desc-'  + id);
+    var valor = document.getElementById('c-valor-' + id);
+    var data  = document.getElementById('c-data-'  + id);
+    var v = parseFloat((valor && valor.value) || 0);
+    if (v > 0) {
+      resultado.push({
+        fonte:      (fonte && fonte.value) || 'Cotação manual',
+        objeto:     (desc  && desc.value)  || '',
+        valor:      v,
+        data:       (data  && data.value)  || '',
+        modalidade: 'Cotação direta',
+        orgao:      (fonte && fonte.value) || '',
+        uf:         'MS',
+        id_pncp:    'MANUAL-' + id
+      });
+    }
+  });
+  return resultado;
+}
+
+var pdfNome = '';
+
+// Drop zone
+var dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', function() { dz.classList.remove('drag'); });
+dz.addEventListener('drop', function(e) {
+  e.preventDefault(); dz.classList.remove('drag');
+  var files = e.dataTransfer.files;
+  if (files.length) processarArquivo(files[0]);
+});
+dz.addEventListener('click', function(e) {
+  if (e.target.tagName !== 'BUTTON') document.getElementById('file-input').click();
+});
+document.getElementById('file-input').addEventListener('change', function() {
+  if (this.files.length) processarArquivo(this.files[0]);
+});
+
+function processarArquivo(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    mostrarErro('O arquivo deve ser um PDF.'); return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    mostrarErro('Arquivo muito grande. Máximo: 10MB.'); return;
+  }
+  pdfNome = file.name;
+  var tam = (file.size / (1024*1024)).toFixed(1) + ' MB';
+  document.getElementById('arquivo-nome').textContent = file.name;
+  document.getElementById('arquivo-tam').textContent = tam;
+  document.getElementById('arquivo-selecionado').classList.add('show');
+  document.getElementById('drop-zone').style.display = 'none';
+  document.getElementById('btn-pesquisar').disabled = false;
+  esconderErro();
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    pdfBase64 = e.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerArquivo() {
+  pdfBase64 = null; pdfNome = '';
+  document.getElementById('arquivo-selecionado').classList.remove('show');
+  document.getElementById('drop-zone').style.display = 'block';
+  document.getElementById('btn-pesquisar').disabled = true;
+  document.getElementById('file-input').value = '';
+  esconderErro();
+}
+
+function mostrarErro(msg) {
+  document.getElementById('erro-msg').textContent = msg;
+  document.getElementById('erro-box').classList.add('show');
+}
+function esconderErro() {
+  document.getElementById('erro-box').classList.remove('show');
+}
+
+// Animação dos steps
+var stepAtual = 0;
+var stepTimer = null;
+function animarSteps() {
+  var steps = ['step1','step2','step3','step4','step5','step6'];
+  var delays = [0, 2000, 4000, 8000, 12000, 20000];
+  steps.forEach(function(id, i) {
+    setTimeout(function() {
+      if (i > 0) {
+        var prev = document.getElementById(steps[i-1]);
+        prev.classList.remove('active');
+        prev.classList.add('done');
+        prev.querySelector('.step-icon').textContent = '✓';
+      }
+      document.getElementById(id).classList.add('active');
+    }, delays[i]);
+  });
+}
+
+function iniciarPesquisa() {
+  if (!pdfBase64) { mostrarErro('Selecione um PDF primeiro.'); return; }
+
+  // Esconder card de upload, mostrar loading
+  document.getElementById('card-upload').style.display = 'none';
+  document.getElementById('card-loading').classList.add('show');
+  animarSteps();
+
+  fetch('/api/pesquisar-precos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Session-Token': sessionStorage.getItem('session_token')||'' },
+    body: JSON.stringify({
+      pdf_base64: pdfBase64,
+      cotacoes_manuais: coletarCotacoesManuais()
+    })
+  })
+  .then(function(r) {
+    if (!r.ok) {
+      return r.json().then(function(d) { throw new Error(d.error || 'Erro HTTP ' + r.status); });
+    }
+    return r.blob();
+  })
+  .then(function(blob) {
+    // Criar link de download
+    var url = URL.createObjectURL(blob);
+    var a = document.getElementById('btn-download');
+    a.href = url;
+    a.download = 'pesquisa_precos_' + pdfNome.replace('.pdf','') + '.xlsx';
+
+    // Mostrar resultado
+    document.getElementById('card-loading').classList.remove('show');
+    document.getElementById('card-resultado').classList.add('show');
+    document.getElementById('resultado-desc').textContent =
+      'Planilha gerada a partir do TR: ' + pdfNome;
+  })
+  .catch(function(e) {
+    document.getElementById('card-loading').classList.remove('show');
+    document.getElementById('card-upload').style.display = 'block';
+    mostrarErro('Erro: ' + e.message);
+  });
+}
+
+function novaPesquisa() {
+  document.getElementById('card-resultado').classList.remove('show');
+  document.getElementById('card-upload').style.display = 'block';
+  removerArquivo();
+  // Resetar steps
+  ['step1','step2','step3','step4','step5','step6'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.classList.remove('active','done');
+    el.querySelector('.step-icon').textContent = ['📄','🤖','🏛️','🛒','📊','📋'][
+      ['step1','step2','step3','step4','step5','step6'].indexOf(id)
+    ];
+  });
+}
+</script>
+</body>
+</html>
