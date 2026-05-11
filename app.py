@@ -634,6 +634,10 @@ def modelos_page():
 def curso_page():
     return send_from_directory("static", "curso.html")
 
+@app.route("/hub")
+def hub_page():
+    return send_from_directory("static", "hub.html")
+
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
